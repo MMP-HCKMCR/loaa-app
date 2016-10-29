@@ -15,5 +15,5 @@
     </string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="phone_no">Phone Number:</string>
-    <string name="signup">Sign Up</string>
+    <string name="signup">Sign In</string>
 </resources>

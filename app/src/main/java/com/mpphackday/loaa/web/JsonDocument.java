@@ -2,6 +2,8 @@ package com.mpphackday.loaa.web;
 
 import android.util.Log;
 
+import com.mpphackday.loaa.dto.MissingPeopleResult;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -56,6 +58,34 @@ public class JsonDocument
             for (int i = 0; i < array.length(); i++)
             {
                 docs.add(new JsonDocument(array.getJSONObject(i)));
+            }
+
+            return docs;
+        }
+        catch (Exception ex)
+        {
+            Log.e(mTag, ex.getMessage());
+        }
+
+        return null;
+    }
+
+    public ArrayList<MissingPeopleResult> getMissingPeopleArray(String tag)
+    {
+        if (mJson == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            JSONArray array = mJson.getJSONArray(tag);
+            ArrayList<MissingPeopleResult> docs = new ArrayList<>(array.length());
+
+            for (int i = 0; i < array.length(); i++)
+            {
+                JsonDocument doc = new JsonDocument(array.getJSONObject(i));
+                docs.add(new MissingPeopleResult(doc));
             }
 
             return docs;
@@ -128,6 +158,20 @@ public class JsonDocument
         try
         {
             return mJson.getInt(tag);
+        }
+        catch (Exception ex)
+        {
+            Log.e(mTag, ex.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int length()
+    {
+        try
+        {
+            return mJson.length();
         }
         catch (Exception ex)
         {

@@ -11,12 +11,15 @@ import com.squareup.okhttp.RequestBody;
 public class WebRequest
 {
 
-    public static void send(String url, String data, String tag, IAsyncTask.OnPostExecuteListener listener)
+    public static void send(String url, String data, String method, String tag, IAsyncTask.OnPostExecuteListener listener)
     {
-        RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), data);
+        RequestBody body = data == null || data.length() == 0
+            ? null
+            : RequestBody.create(MediaType.parse("application/json; charset=utf-8"), data);
+
         Request request = new Request.Builder()
                 .url(url)
-                .post(body)
+                .method(method, body)
                 .build();
 
         WebTask task = new WebTask(tag);
