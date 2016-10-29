@@ -12,9 +12,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.daprlabs.aaron.swipedeck.SwipeDeck;
+import com.mpphackday.loaa.adapters.SwipeDeckAdapter;
 import com.mpphackday.loaa.dto.MissingPeopleResult;
 import com.mpphackday.loaa.helpers.AppHelper;
 import com.mpphackday.loaa.helpers.ToastHelper;
@@ -31,8 +34,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
     private final String mTag = "HomeActivity";
 
     public ProgressBar mProgress = null;
-    public ListView mListView = null;
-    public ArrayAdapter<String> mAdapter = null;
+    public SwipeDeck mSwipeDeck = null;
+    public SwipeDeckAdapter mSwipeAdapter = null;
 
 
     @Override
@@ -41,8 +44,38 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mSwipeDeck = (SwipeDeck) findViewById(R.id.swipe_deck);
         mProgress = (ProgressBar)findViewById(R.id.progress);
-        mListView = (ListView)findViewById(R.id.missing_list);
+
+        mSwipeDeck.SWIPE_ENABLED = true;
+        mSwipeDeck.setCallback(new SwipeDeck.SwipeDeckCallback() {
+            @Override
+            public void cardSwipedLeft(long stableId) {
+                Log.d("MainActivity", "card was swiped left, position in adapter: " + stableId);
+            }
+
+            @Override
+            public void cardSwipedRight(long stableId) {
+                Log.d("MainActivity", "card was swiped right, position in adapter: " + stableId);
+            }
+        });
+
+        Button btn = (Button) findViewById(R.id.swipe_left_btn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSwipeDeck.swipeTopCardLeft(180);
+            }
+        });
+
+        Button btn2 = (Button) findViewById(R.id.swipe_right_btn);
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSwipeDeck.swipeTopCardRight(180);
+            }
+        });
+
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED)
@@ -66,14 +99,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
             ArrayList<MissingPeopleResult> people = json.getMissingPeopleArray("missing");
             mProgress.setVisibility(View.INVISIBLE);
 
-            String[] names = new String[people.size()];
+            ArrayList<String> names = new ArrayList<>(people.size());
             for (int i = 0; i < people.size(); i++)
             {
-                names[i] = people.get(i).getFullname();
+                names.add(people.get(i).getFullname());
             }
 
-            mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
-            mListView.setAdapter(mAdapter);
+            mSwipeAdapter = new SwipeDeckAdapter(names, this);
+            mSwipeDeck.setAdapter(mSwipeAdapter);
 
             Log.d(mTag, "" + people.size());
         }

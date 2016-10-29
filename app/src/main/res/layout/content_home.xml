@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.daprlabs.aaron.swipedeck.layouts.SwipeFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:swipedeck="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:background="#DDD" >
+    android:id="@+id/swipeLayout"
+    android:orientation="vertical">
+
+    <com.daprlabs.aaron.swipedeck.SwipeDeck
+        android:id="@+id/swipe_deck"
+        android:layout_width="match_parent"
+        android:layout_height="700dp"
+        android:padding="40dp"
+        swipedeck:max_visible="3"
+        swipedeck:card_spacing="10dp"
+        swipedeck:swipe_enabled="false"/>
+
+    <Button
+        android:id="@+id/swipe_left_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:text="Seen" />
+
+    <Button
+        android:id="@+id/swipe_right_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:text="Not Seen" />
 
 
     <ProgressBar
@@ -16,11 +39,4 @@
         android:layout_centerInParent="true"
         android:visibility="visible" />
 
-    <ListView
-        android:id="@+id/missing_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </ListView>
-
-</RelativeLayout>
+</com.daprlabs.aaron.swipedeck.layouts.SwipeFrameLayout>
