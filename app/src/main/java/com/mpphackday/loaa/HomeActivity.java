@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -45,6 +47,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
     public SwipeDeck mSwipeDeck = null;
     public SwipeDeckAdapter mSwipeAdapter = null;
     public Button mFavouriteBtn = null;
+    public Button mSignOut = null;
 
 
     @Override
@@ -96,6 +99,20 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
             @Override
             public void onClick(View v) {
                 doFavourite();
+            }
+        });
+
+        mSignOut = (Button)findViewById(R.id.signout_btn);
+        mSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = _this.getSharedPreferences("LOAA_GUID", _this.MODE_PRIVATE).edit();
+                editor.remove("guid");
+                editor.commit();
+
+                Intent i = new Intent(_this, LoginActivity.class);
+                startActivity(i);
+                finish();
             }
         });
 

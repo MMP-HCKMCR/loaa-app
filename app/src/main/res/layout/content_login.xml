@@ -8,12 +8,32 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:background="#DDD" >
 
+    <TextView
+        android:id="@+id/logo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LOAA"
+        android:textAlignment="center"
+        android:layout_gravity="top|center"
+        android:layout_marginTop="20dp"
+        android:textSize="50sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Help Find Missing People"
+        android:textAlignment="center"
+        android:layout_below="@id/logo"
+        android:layout_marginTop="10dp"
+        android:textSize="17sp" />
+
     <LinearLayout
         android:id="@+id/login_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical"
+        android:layout_marginTop="15dp"
         android:layout_gravity="center">
 
         <TextView
