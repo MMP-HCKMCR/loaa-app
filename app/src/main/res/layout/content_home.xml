@@ -25,6 +25,13 @@
         android:text="Seen" />
 
     <Button
+        android:id="@+id/favourite_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:text="Favourite" />
+
+    <Button
         android:id="@+id/swipe_right_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

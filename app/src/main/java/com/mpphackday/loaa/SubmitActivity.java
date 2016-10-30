@@ -33,7 +33,7 @@ public class SubmitActivity extends AppCompatActivity implements ActivityCompat.
 
     private final String mTag = "SubmitActivity";
 
-    public String mGuid = null;
+    public String mAccountId = null;
     public String mPersonId = null;
     public String mCurrentDate = null;
     public double mLatitude = 0;
@@ -52,7 +52,7 @@ public class SubmitActivity extends AppCompatActivity implements ActivityCompat.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_submit);
 
-        mGuid = getIntent().getStringExtra("guid");
+        mAccountId = getIntent().getStringExtra("id");
         mPersonId = getIntent().getStringExtra("personId");
 
         mDate = (TextView)findViewById(R.id.date_txt);
@@ -122,7 +122,7 @@ public class SubmitActivity extends AppCompatActivity implements ActivityCompat.
             String desc = mDescription.getText().toString();
 
             mProgress.setVisibility(View.VISIBLE);
-            String data = "{\"guid\":\"" + mGuid + "\", \"latitude\":\"" + mLatitude + "\", \"longitude\":\"" + mLongitude + "\", \"description\":\"" + desc + "\", \"date\":\"" + mCurrentDate + "\"}";
+            String data = "{\"accountId\":\"" + mAccountId + "\", \"latitude\":\"" + mLatitude + "\", \"longitude\":\"" + mLongitude + "\", \"description\":\"" + desc + "\", \"date\":\"" + mCurrentDate + "\"}";
             WebRequest.send(AppHelper.URL + "missing/" + mPersonId, data, "PUT", "seen", this);
         }
         catch (Exception ex)

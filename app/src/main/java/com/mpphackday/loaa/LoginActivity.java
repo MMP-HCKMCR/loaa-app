@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                 editor.apply();
 
                 Intent i = new Intent(this, HomeActivity.class);
-                i.putExtra("guid", accountResult.guid);
+                i.putExtra("id", accountResult.id);
                 startActivity(i);
                 finish();
             }

@@ -10,6 +10,7 @@ public class AccountResult
 {
 
     public String message = null;
+    public String id = null;
     public String guid = null;
     public String phoneNumber = null;
     public String forename = null;
@@ -17,6 +18,7 @@ public class AccountResult
 
     public AccountResult(JsonDocument document)
     {
+        id = document.getString("_id");
         message = document.getString("message");
         guid = document.getString("guid");
         phoneNumber = document.getString("phoneNumber");

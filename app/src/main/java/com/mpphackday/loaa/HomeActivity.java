@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
@@ -36,11 +37,14 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
     private final String mTag = "HomeActivity";
 
     public ArrayList<MissingPeopleResult> mPeople = null;
-    public String mGuid = null;
+    public ArrayList<String> mFavourites = null;
+    public String mAccountId = null;
+    public int mCurrentIndex = 0;
 
     public ProgressBar mProgress = null;
     public SwipeDeck mSwipeDeck = null;
     public SwipeDeckAdapter mSwipeAdapter = null;
+    public Button mFavouriteBtn = null;
 
 
     @Override
@@ -49,7 +53,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        mGuid = getIntent().getStringExtra("guid");
+        mAccountId = getIntent().getStringExtra("id");
 
         mSwipeDeck = (SwipeDeck) findViewById(R.id.swipe_deck);
         mProgress = (ProgressBar)findViewById(R.id.progress);
@@ -61,10 +65,12 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
             public void cardSwipedLeft(long stableId) {
                 Log.d("MainActivity", "card was swiped left, position in adapter: " + stableId);
 
+                mCurrentIndex++;
                 MissingPeopleResult person = mPeople.get((int)stableId);
+                setFavouriteButton();
 
                 Intent i = new Intent(_this, SubmitActivity.class);
-                i.putExtra("guid", mGuid);
+                i.putExtra("id", mAccountId);
                 i.putExtra("personId", person.id);
                 startActivity(i);
             }
@@ -72,19 +78,29 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
             @Override
             public void cardSwipedRight(long stableId) {
                 Log.d("MainActivity", "card was swiped right, position in adapter: " + stableId);
+                mCurrentIndex++;
+                setFavouriteButton();
             }
         });
 
-        Button btn = (Button) findViewById(R.id.swipe_left_btn);
-        btn.setOnClickListener(new View.OnClickListener() {
+        Button leftBtn = (Button) findViewById(R.id.swipe_left_btn);
+        leftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mSwipeDeck.swipeTopCardLeft(180);
             }
         });
 
-        Button btn2 = (Button) findViewById(R.id.swipe_right_btn);
-        btn2.setOnClickListener(new View.OnClickListener() {
+        mFavouriteBtn = (Button)findViewById(R.id.favourite_btn);
+        mFavouriteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doFavourite();
+            }
+        });
+
+        Button rightBtn = (Button) findViewById(R.id.swipe_right_btn);
+        rightBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mSwipeDeck.swipeTopCardRight(180);
@@ -105,25 +121,43 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    public void setFavouriteButton()
+    {
+        if (mFavourites.contains(mPeople.get(mCurrentIndex).id))
+        {
+            mFavouriteBtn.setBackgroundColor(Color.YELLOW);
+        }
+    }
+
     @Override
     public <T> void onPostExecute(IAsyncTask asyncTask, T result, String tag)
     {
         try
         {
             JsonDocument json = (JsonDocument)result;
-            mPeople = json.getMissingPeopleArray("missing");
-            mProgress.setVisibility(View.INVISIBLE);
 
-            ArrayList<String> names = new ArrayList<>(mPeople.size());
-            for (int i = 0; i < mPeople.size(); i++)
-            {
-                names.add(mPeople.get(i).getFullname());
+            if (tag.equals("missing")) {
+                mPeople = json.getMissingPeopleArray("missing");
+                mFavourites = json.getStringArray("favourites");
+                mProgress.setVisibility(View.INVISIBLE);
+
+                ArrayList<String> names = new ArrayList<>(mPeople.size());
+                for (int i = 0; i < mPeople.size(); i++) {
+                    names.add(mPeople.get(i).getFullname());
+                }
+
+                mSwipeAdapter = new SwipeDeckAdapter(names, this);
+                mSwipeDeck.setAdapter(mSwipeAdapter);
+                setFavouriteButton();
+
+                Log.d(mTag, "" + mPeople.size());
             }
 
-            mSwipeAdapter = new SwipeDeckAdapter(names, this);
-            mSwipeDeck.setAdapter(mSwipeAdapter);
-
-            Log.d(mTag, "" + mPeople.size());
+            if (tag.equals("favourite"))
+            {
+                mFavourites.add(mPeople.get(mCurrentIndex).id);
+                setFavouriteButton();
+            }
         }
         catch (Exception ex)
         {
@@ -150,6 +184,26 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    public void doFavourite()
+    {
+        try
+        {
+            String data = "{\"accountId\":\"" + mAccountId + "\"}";
+            String personId = mPeople.get(mCurrentIndex).id;
+
+            if (mFavourites.contains(personId))
+            {
+                return;
+            }
+
+            WebRequest.send(AppHelper.URL + "missing/" + personId + "/favourite", data, "POST", "favourite", this);
+        }
+        catch (Exception ex)
+        {
+            ToastHelper.show(this, "Failed to Favourite");
+        }
+    }
+
     public void getLocation()
     {
         try
@@ -160,7 +214,7 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
             double latitude = location.getLatitude();
 
             Log.d(mTag, "LAT: " + latitude + ", LONG: " + longitude);
-            String data = "{\"latitude\":\"" + latitude + "\", \"longitude\":\"" + longitude + "\"}";
+            String data = "{\"accountId\":\"" + mAccountId + "\",\"latitude\":\"" + latitude + "\", \"longitude\":\"" + longitude + "\"}";
             WebRequest.send(AppHelper.URL + "missing", data, "POST", "missing", this);
         }
         catch (SecurityException sex)
