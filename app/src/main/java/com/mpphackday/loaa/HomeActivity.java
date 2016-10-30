@@ -1,7 +1,9 @@
 package com.mpphackday.loaa;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -33,6 +35,9 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
 
     private final String mTag = "HomeActivity";
 
+    public ArrayList<MissingPeopleResult> mPeople = null;
+    public String mGuid = null;
+
     public ProgressBar mProgress = null;
     public SwipeDeck mSwipeDeck = null;
     public SwipeDeckAdapter mSwipeAdapter = null;
@@ -44,14 +49,24 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mGuid = getIntent().getStringExtra("guid");
+
         mSwipeDeck = (SwipeDeck) findViewById(R.id.swipe_deck);
         mProgress = (ProgressBar)findViewById(R.id.progress);
+        final Activity _this = this;
 
         mSwipeDeck.SWIPE_ENABLED = true;
         mSwipeDeck.setCallback(new SwipeDeck.SwipeDeckCallback() {
             @Override
             public void cardSwipedLeft(long stableId) {
                 Log.d("MainActivity", "card was swiped left, position in adapter: " + stableId);
+
+                MissingPeopleResult person = mPeople.get((int)stableId);
+
+                Intent i = new Intent(_this, SubmitActivity.class);
+                i.putExtra("guid", mGuid);
+                i.putExtra("personId", person.id);
+                startActivity(i);
             }
 
             @Override
@@ -96,19 +111,19 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
         try
         {
             JsonDocument json = (JsonDocument)result;
-            ArrayList<MissingPeopleResult> people = json.getMissingPeopleArray("missing");
+            mPeople = json.getMissingPeopleArray("missing");
             mProgress.setVisibility(View.INVISIBLE);
 
-            ArrayList<String> names = new ArrayList<>(people.size());
-            for (int i = 0; i < people.size(); i++)
+            ArrayList<String> names = new ArrayList<>(mPeople.size());
+            for (int i = 0; i < mPeople.size(); i++)
             {
-                names.add(people.get(i).getFullname());
+                names.add(mPeople.get(i).getFullname());
             }
 
             mSwipeAdapter = new SwipeDeckAdapter(names, this);
             mSwipeDeck.setAdapter(mSwipeAdapter);
 
-            Log.d(mTag, "" + people.size());
+            Log.d(mTag, "" + mPeople.size());
         }
         catch (Exception ex)
         {
@@ -145,8 +160,8 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
             double latitude = location.getLatitude();
 
             Log.d(mTag, "LAT: " + latitude + ", LONG: " + longitude);
-
-            WebRequest.send(AppHelper.URL + "missing", "{}", "POST", "missing", this);
+            String data = "{\"latitude\":\"" + latitude + "\", \"longitude\":\"" + longitude + "\"}";
+            WebRequest.send(AppHelper.URL + "missing", data, "POST", "missing", this);
         }
         catch (SecurityException sex)
         {

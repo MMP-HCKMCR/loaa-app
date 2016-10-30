@@ -15,10 +15,12 @@ public class MissingPeopleResult
     public String gender = null;
     public String borough = null;
     public String dateWentMissing = null;
+    public String id = null;
 
 
     public MissingPeopleResult(JsonDocument document)
     {
+        id = document.getString("_id");
         message = document.getString("message");
         forenames = document.getString("forenames");
         surname = document.getString("surname");

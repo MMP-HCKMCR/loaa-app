@@ -22,7 +22,7 @@
             <ImageView
                 tools:src="@drawable/mr_bean_image"
                 android:id="@+id/offer_image"
-                android:layout_width="300dp"
+                android:layout_width="350dp"
                 android:scaleType="centerCrop"
                 android:adjustViewBounds="true"
                 android:layout_height="300dp" />
