@@ -2,6 +2,7 @@ package com.mpphackday.loaa;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -37,23 +38,29 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mPhoneNumber = (EditText)findViewById(R.id.phone_no_text);
-        mSignUp = (Button)findViewById(R.id.signup_btn);
-        mProgress = (ProgressBar)findViewById(R.id.progress);
+        SharedPreferences shared = getSharedPreferences("LOAA_GUID", MODE_PRIVATE);
+        String guid = shared.getString("guid", "");
+
+
+        mPhoneNumber = (EditText) findViewById(R.id.phone_no_text);
+        mSignUp = (Button) findViewById(R.id.signup_btn);
+        mProgress = (ProgressBar) findViewById(R.id.progress);
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED)
-        {
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_SMS},
                     5);
-        }
-        else
-        {
+        } else {
             populatePhoneNumber();
         }
 
         mSignUp.setOnClickListener(this);
+
+        if (guid != null && guid.length() > 0)
+        {
+            doLogin(guid);
+        }
     }
 
     public void onClick(View view)
@@ -77,6 +84,11 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
                 mProgress.setVisibility(View.INVISIBLE);
                 accountResult = new AccountResult(json);
             }
+            else if (tag.equals("login"))
+            {
+                mProgress.setVisibility(View.INVISIBLE);
+                accountResult = new AccountResult(json);
+            }
 
             if (accountResult.message != null && accountResult.message.length() > 0)
             {
@@ -86,8 +98,12 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
 
             if (accountResult.guid != null && accountResult.guid.length() > 0)
             {
+                SharedPreferences.Editor editor = getSharedPreferences("LOAA_GUID", MODE_PRIVATE).edit();
+                editor.putString("guid", accountResult.guid);
+                editor.apply();
+
                 Intent i = new Intent(this, HomeActivity.class);
-                i.putExtra("Guid", accountResult.guid);
+                i.putExtra("guid", accountResult.guid);
                 startActivity(i);
                 finish();
             }
@@ -100,6 +116,21 @@ public class LoginActivity extends AppCompatActivity implements ActivityCompat.O
         {
             Log.e(mTag, ex.getMessage());
             ToastHelper.show(this, "Sign in unsuccessful");
+        }
+    }
+
+    public void doLogin(String guid)
+    {
+        try
+        {
+            ToastHelper.show(this, "Signing you in");
+            mProgress.setVisibility(View.VISIBLE);
+            String data = "{\"token\":\"" + guid + "\"}";
+            WebRequest.send(AppHelper.URL + "account/login", data, "POST", "login", this);
+        }
+        catch (Exception ex)
+        {
+            Log.e(mTag, ex.getMessage());
         }
     }
 
