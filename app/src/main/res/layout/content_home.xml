@@ -8,11 +8,19 @@
     android:id="@+id/swipeLayout"
     android:orientation="vertical">
 
+    <Button
+        android:id="@+id/report_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center"
+        android:text="Report Missing Person" />
+
     <com.daprlabs.aaron.swipedeck.SwipeDeck
         android:id="@+id/swipe_deck"
         android:layout_width="match_parent"
         android:layout_height="700dp"
         android:padding="40dp"
+        android:layout_marginTop="40dp"
         swipedeck:max_visible="3"
         swipedeck:card_spacing="10dp"
         swipedeck:swipe_enabled="false"/>

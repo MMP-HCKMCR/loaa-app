@@ -99,6 +99,16 @@ public class HomeActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
+        Button reportBtn = (Button)findViewById(R.id.report_btn);
+        reportBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(_this, ReportActivity.class);
+                i.putExtra("id", mAccountId);
+                startActivity(i);
+            }
+        });
+
         Button rightBtn = (Button) findViewById(R.id.swipe_right_btn);
         rightBtn.setOnClickListener(new View.OnClickListener() {
             @Override
